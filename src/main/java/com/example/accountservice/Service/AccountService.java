@@ -2,6 +2,8 @@ package com.example.accountservice.Service;
 
 import com.example.accountservice.Entity.AccountEntity;
 import com.example.accountservice.Entity.AccountType;
+import com.example.accountservice.Exception.AccountNotFoundException;
+import com.example.accountservice.Exception.InsufficientFundsException;
 import com.example.accountservice.Repository.AccountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,11 +34,31 @@ public class AccountService {
     public AccountEntity  getBalance(String accountNo)
     {
         return repo.findByAccountNo(accountNo).orElseThrow(()->
-                new RuntimeException("Account Not Found"));
+                new AccountNotFoundException("Account Not Found"));
     }
 
     public List<AccountEntity> getAccountsByUserId(Long userId)
     {
         return  repo.findByUserId(userId);
+    }
+
+
+    public AccountEntity updateBalance(String accountNo, BigDecimal amount, String operation)
+    {
+        AccountEntity account=repo.findByAccountNo(accountNo).orElseThrow(()->
+                new  AccountNotFoundException("Account Not Found"));
+        if(operation.equals("DEPOSIT"))
+        {
+            account.setBalance(account.getBalance().add(amount));
+        }
+        else {
+            if(account.getBalance().compareTo(amount) < 0)
+            {
+                throw new InsufficientFundsException("Insufficenit Amount ");
+            }
+            account.setBalance(account.getBalance().subtract(amount));
+        }
+
+        return repo.save(account);
     }
 }

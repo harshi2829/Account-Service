@@ -6,6 +6,7 @@ import com.example.accountservice.Service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -30,5 +31,13 @@ public class AccountController {
     public AccountEntity create(@RequestParam Long userId,@RequestParam AccountType type)
     {
         return service.createAccount(userId,type);
+    }
+
+    @PutMapping("/update-balance")
+    public  AccountEntity updateBalance(@RequestParam String accountNo,
+                                        @RequestParam BigDecimal amount,
+                                        @RequestParam String operation)
+    {
+        return service.updateBalance(accountNo, amount, operation);
     }
 }
